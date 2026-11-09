@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TestShop</title>
+
+  <!-- =====================================================
+       META PIXEL — ضع Pixel ID بتاعك هنا
+  ====================================================== -->
+  <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+
+    var META_PIXEL_ID = 'YOUR_PIXEL_ID_HERE'; // <-- غير ده
+    fbq('init', META_PIXEL_ID);
+    fbq('track', 'PageView');
+  </script>
+  <noscript>
+    <img height="1" width="1" style="display:none"
+      src="https://www.facebook.com/tr?id=YOUR_PIXEL_ID_HERE&ev=PageView&noscript=1"/>
+  </noscript>
+  <!-- END META PIXEL -->
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f5f5;
+      --card: #ffffff;
+      --accent: #1db954; /* Spotify green */
+      --accent2: #0866ff; /* Meta blue */
+      --text: #1a1a1a;
+      --muted: #666;
+      --radius: 12px;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ---- HEADER ---- */
+    header {
+      background: var(--text);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    header h1 { font-size: 1.3rem; letter-spacing: 1px; }
+    .cart-btn {
+      background: var(--accent2);
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 8px 18px;
+      cursor: pointer;
+      font-size: .9rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .cart-btn:hover { opacity: .88; }
+
+    /* ---- HERO ---- */
+    .hero {
+      background: linear-gradient(135deg,#0866ff 0%,#1db954 100%);
+      color: #fff;
+      text-align: center;
+      padding: 48px 20px;
+    }
+    .hero h2 { font-size: 2rem; margin-bottom: 8px; }
+    .hero p  { opacity: .85; font-size: 1.05rem; }
+
+    /* ---- PRODUCTS ---- */
+    .section-title {
+      text-align: center;
+      padding: 32px 20px 16px;
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+    .products {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 20px;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 20px 40px;
+    }
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+      transition: transform .15s, box-shadow .15s;
+    }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,.13); }
+    .card img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      background: #e0e0e0;
+    }
+    .card-body { padding: 14px; }
+    .card-body h3 { font-size: 1rem; margin-bottom: 4px; }
+    .card-body .price {
+      color: var(--accent2);
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+    }
+    .add-btn {
+      width: 100%;
+      background: var(--text);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 9px;
+      cursor: pointer;
+      font-size: .9rem;
+      transition: background .15s;
+    }
+    .add-btn:hover { background: #333; }
+    .add-btn.added { background: var(--accent); }
+
+    /* ---- SPOTIFY SECTION ---- */
+    .spotify-section {
+      background: #121212;
+      color: #fff;
+      text-align: center;
+      padding: 36px 20px;
+    }
+    .spotify-section h2 {
+      font-size: 1.2rem;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .spotify-section h2 svg { width:22px; height:22px; fill:#1db954; }
+    /* ضع embed code من Spotify هنا — غير الـ src */
+    .spotify-section iframe {
+      border-radius: 12px;
+      border: none;
+    }
+
+    /* ---- CART DRAWER ---- */
+    .overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.45);
+      z-index: 200;
+    }
+    .overlay.open { display: block; }
+    .drawer {
+      position: fixed;
+      top: 0; right: -400px;
+      width: 340px;
+      max-width: 95vw;
+      height: 100vh;
+      background: var(--card);
+      z-index: 300;
+      display: flex;
+      flex-direction: column;
+      transition: right .3s ease;
+      padding: 20px;
+    }
+    .drawer.open { right: 0; }
+    .drawer h2 { font-size: 1.2rem; margin-bottom: 16px; }
+    .drawer-close {
+      position: absolute;
+      top: 16px; right: 16px;
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      cursor: pointer;
+    }
+    #cart-items { flex: 1; overflow-y: auto; }
+    .cart-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+      font-size: .92rem;
+    }
+    .cart-item .rm { background:none; border:none; color:#c00; cursor:pointer; font-size:1rem; }
+    .cart-total {
+      padding: 14px 0 0;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+    .checkout-btn {
+      margin-top: 12px;
+      width: 100%;
+      background: var(--accent2);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 13px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+    .checkout-btn:hover { opacity: .88; }
+
+    /* ---- TOAST ---- */
+    .toast {
+      position: fixed;
+      bottom: 24px; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #222;
+      color: #fff;
+      padding: 10px 22px;
+      border-radius: 24px;
+      font-size: .9rem;
+      transition: transform .3s;
+      z-index: 999;
+      pointer-events: none;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: var(--muted);
+      font-size: .8rem;
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <h1>🛍️ TestShop</h1>
+  <button class="cart-btn" onclick="toggleCart()">
+    🛒 Cart <span id="cart-count">0</span>
+  </button>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <h2>Your Testing Store</h2>
+  <p>Meta Pixel + Spotify Integration Ready</p>
+</div>
+
+<!-- PRODUCTS -->
+<div class="section-title">🔥 Products</div>
+<div class="products" id="products-grid"></div>
+
+<!-- SPOTIFY SECTION -->
+<div class="spotify-section">
+  <h2>
+    <svg viewBox="0 0 168 168" xmlns="http://www.w3.org/2000/svg">
+      <path d="M84 0C37.6 0 0 37.6 0 84s37.6 84 84 84 84-37.6 84-84S130.4 0 84 0zm38.5 121.1c-1.5 2.5-4.8 3.3-7.3 1.8-20-12.2-45.2-15-74.9-8.2-2.9.7-5.7-1.1-6.4-4s1.1-5.7 4-6.4c32.5-7.4 60.4-4.2 82.8 9.5 2.5 1.5 3.3 4.8 1.8 7.3zm10.3-22.9c-1.9 3.1-6 4.1-9.1 2.2-22.9-14.1-57.8-18.2-84.9-9.9-3.5 1-7.2-1-8.2-4.5s1-7.2 4.5-8.2c30.9-9.4 69.3-4.8 95.5 11.3 3.1 1.9 4.1 6 2.2 9.1zm.9-23.8c-27.5-16.3-72.9-17.8-99.2-9.8-4.2 1.3-8.6-1.1-9.9-5.2-1.3-4.2 1.1-8.6 5.2-9.9 30.2-9.2 80.3-7.4 112 11.3 3.8 2.2 5 7.1 2.8 10.9-2.2 3.7-7.1 5-10.9 2.7z"/>
+    </svg>
+    Now Playing — Vibe While You Shop
+  </h2>
+
+  <!--
+    ======================================================
+    SPOTIFY EMBED — غير الـ src بالـ playlist/track بتاعك
+    مثال:
+    src="https://open.spotify.com/embed/playlist/YOUR_PLAYLIST_ID"
+    ======================================================
+  -->
+  <iframe
+    src="https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M"
+    width="100%"
+    height="152"
+    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+    loading="lazy"
+    style="max-width:500px;">
+  </iframe>
+</div>
+
+<!-- CART DRAWER -->
+<div class="overlay" id="overlay" onclick="toggleCart()"></div>
+<div class="drawer" id="drawer">
+  <button class="drawer-close" onclick="toggleCart()">✕</button>
+  <h2>🛒 Your Cart</h2>
+  <div id="cart-items"></div>
+  <div class="cart-total">Total: $<span id="cart-total">0.00</span></div>
+  <button class="checkout-btn" onclick="checkout()">Checkout</button>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<footer>TestShop — Meta Pixel & Spotify Test Environment</footer>
+
+<script>
+  /* ====== PRODUCTS DATA ====== */
+  const products = [
+    { id: 1, name: 'Product Alpha',  price: 29.99, emoji: '👟' },
+    { id: 2, name: 'Product Beta',   price: 49.99, emoji: '👜' },
+    { id: 3, name: 'Product Gamma',  price: 19.99, emoji: '🕶️' },
+    { id: 4, name: 'Product Delta',  price: 89.99, emoji: '⌚' },
+    { id: 5, name: 'Product Epsilon',price: 14.99, emoji: '🎧' },
+    { id: 6, name: 'Product Zeta',   price: 34.99, emoji: '👒' },
+  ];
+
+  /* ====== RENDER PRODUCTS ====== */
+  const grid = document.getElementById('products-grid');
+  products.forEach(p => {
+    grid.innerHTML += `
+      <div class="card">
+        <div style="height:160px;display:flex;align-items:center;justify-content:center;
+             font-size:5rem;background:#f0f0f0;">${p.emoji}</div>
+        <div class="card-body">
+          <h3>${p.name}</h3>
+          <div class="price">$${p.price.toFixed(2)}</div>
+          <button class="add-btn" id="btn-${p.id}" onclick="addToCart(${p.id})">
+            Add to Cart
+          </button>
+        </div>
+      </div>`;
+  });
+
+  /* ====== CART STATE ====== */
+  let cart = [];
+
+  function addToCart(id) {
+    const product = products.find(p => p.id === id);
+    const existing = cart.find(i => i.id === id);
+    if (existing) existing.qty++;
+    else cart.push({ ...product, qty: 1 });
+
+    // Flash button
+    const btn = document.getElementById(`btn-${id}`);
+    btn.textContent = '✓ Added'; btn.classList.add('added');
+    setTimeout(() => { btn.textContent = 'Add to Cart'; btn.classList.remove('added'); }, 1200);
+
+    updateCartUI();
+    showToast(`${product.name} added!`);
+
+    // META PIXEL: AddToCart event
+    fbq('track', 'AddToCart', {
+      content_ids: [id.toString()],
+      content_name: product.name,
+      value: product.price,
+      currency: 'USD'
+    });
+  }
+
+  function removeFromCart(id) {
+    cart = cart.filter(i => i.id !== id);
+    updateCartUI();
+  }
+
+  function updateCartUI() {
+    const count = cart.reduce((s, i) => s + i.qty, 0);
+    document.getElementById('cart-count').textContent = count;
+
+    const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+    document.getElementById('cart-total').textContent = total.toFixed(2);
+
+    const container = document.getElementById('cart-items');
+    if (cart.length === 0) {
+      container.innerHTML = '<p style="color:#999;margin-top:20px;">Your cart is empty.</p>';
+      return;
+    }
+    container.innerHTML = cart.map(i => `
+      <div class="cart-item">
+        <span>${i.emoji} ${i.name} × ${i.qty}</span>
+        <span>$${(i.price * i.qty).toFixed(2)}
+          <button class="rm" onclick="removeFromCart(${i.id})">🗑</button>
+        </span>
+      </div>`).join('');
+  }
+
+  /* ====== CART DRAWER ====== */
+  function toggleCart() {
+    document.getElementById('drawer').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('open');
+  }
+
+  /* ====== CHECKOUT ====== */
+  function checkout() {
+    if (cart.length === 0) { showToast('Cart is empty!'); return; }
+
+    const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+
+    // META PIXEL: InitiateCheckout + Purchase events
+    fbq('track', 'InitiateCheckout', {
+      num_items: cart.reduce((s,i)=>s+i.qty,0),
+      value: total,
+      currency: 'USD'
+    });
+
+    // Simulate purchase after 1s
+    setTimeout(() => {
+      fbq('track', 'Purchase', {
+        content_ids: cart.map(i => i.id.toString()),
+        value: total,
+        currency: 'USD',
+        num_items: cart.reduce((s,i)=>s+i.qty,0)
+      });
+      showToast('✅ Purchase event fired! Check Pixel Helper.');
+      cart = [];
+      updateCartUI();
+      toggleCart();
+    }, 1000);
+  }
+
+  /* ====== TOAST ====== */
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  updateCartUI();
+</script>
+</body>
+</html>
